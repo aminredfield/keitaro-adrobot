@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adrobot — обёртка над Keitaro</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Adrobot <span class="brand-note">обёртка над Keitaro</span></div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" data-view="creator" aria-selected="true">Новая кампания</button>
+      <button class="tab" role="tab" data-view="editor" aria-selected="false">Редактор</button>
+    </nav>
+  </header>
+
+  <main>
+    <div id="config-warning" class="notice notice-warning" hidden>
+      Не задан адрес или API-ключ Keitaro. Заполните <code>.env</code> и перезапустите сервер.
+    </div>
+
+    <!-- Создаватор -->
+    <section id="view-creator" class="view">
+      <div class="creator-layout">
+      <form id="create-form" class="form" autocomplete="off">
+        <h1>Новая кампания</h1>
+
+        <label class="field">
+          <span class="label">Название</span>
+          <input id="create-name" type="text" maxlength="100" required placeholder="campaign1">
+          <span class="hint" id="create-name-hint"></span>
+        </label>
+
+        <label class="field">
+          <span class="label">Гео</span>
+          <input id="create-geo" type="text" required placeholder="MX, AU, RO">
+          <span class="hint">Двухбуквенные коды стран через запятую.</span>
+        </label>
+
+        <div class="field">
+          <label class="label" for="create-offer">Оффер</label>
+          <div class="autocomplete">
+            <input id="create-offer" type="text" placeholder="Название или ID оффера" role="combobox" aria-expanded="false" aria-controls="create-offer-list">
+            <ul id="create-offer-list" class="autocomplete-list" role="listbox" hidden></ul>
+          </div>
+        </div>
+
+        <button id="create-submit" class="button button-primary button-large" type="submit">Создать в Keitaro</button>
+      </form>
+
+      <!-- Схема будущей кампании: обновляется, пока заполняется форма -->
+      <aside class="blueprint" aria-label="Что будет создано">
+        <h2>Что будет создано</h2>
+        <div class="blueprint-name" id="blueprint-name"></div>
+        <div class="flow">
+          <span class="flow-title">Поток 1 · фильтр по стране</span>
+          <div class="flow-rule">
+            <span class="flow-value" id="blueprint-geo"></span>
+            <span class="flow-arrow">-&gt;</span>
+            <span class="flow-value" id="blueprint-redirect"></span>
+          </div>
+        </div>
+        <div class="flow">
+          <span class="flow-title">Поток 2 · все остальные</span>
+          <div class="flow-rule">
+            <span class="flow-arrow">-&gt;</span>
+            <span class="flow-value" id="blueprint-offer"></span>
+          </div>
+        </div>
+        <div class="blueprint-meta" id="create-defaults"></div>
+      </aside>
+      </div>
+
+      <div id="create-result" class="card result" hidden></div>
+
+      <section>
+        <h2 class="section-title">Кампании в нашей базе</h2>
+        <ul id="campaign-list" class="plain-list"></ul>
+      </section>
+    </section>
+
+    <!-- Редактор -->
+    <section id="view-editor" class="view" hidden>
+      <div class="picker">
+        <h1>Редактор кампании</h1>
+        <div class="field">
+          <label class="label" for="editor-search">Кампания</label>
+          <div class="autocomplete">
+            <input id="editor-search" type="text" placeholder="Название или ID кампании в Keitaro" role="combobox" aria-expanded="false" aria-controls="editor-search-list">
+            <ul id="editor-search-list" class="autocomplete-list" role="listbox" hidden></ul>
+          </div>
+        </div>
+      </div>
+
+      <div id="editor-campaign" hidden>
+        <div class="toolbar">
+          <div>
+            <div class="campaign-name" id="editor-name"></div>
+            <div class="hint" id="editor-meta"></div>
+          </div>
+          <div class="toolbar-actions">
+            <button id="editor-fetch" class="button" type="button">Fetch streams from KT</button>
+            <a id="editor-open" class="button" target="_blank" rel="noopener">Open in KT</a>
+          </div>
+        </div>
+        <div id="editor-streams"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
