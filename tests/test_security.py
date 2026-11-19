@@ -1,5 +1,8 @@
 """Приложение без логина не должно слушаться чужих сайтов и чужих хостов."""
 
+import pytest
+from starlette.websockets import WebSocketDisconnect
+
 
 def test_request_from_foreign_site_is_rejected(client, campaign):
     response = client.post(
@@ -33,6 +36,22 @@ def test_responses_carry_security_headers(client):
 
 def test_api_key_is_never_returned(client):
     assert "test-key" not in client.get("/api/info").text
+
+
+def test_page_and_its_assets_are_served(client):
+    page = client.get("/")
+
+    assert page.status_code == 200
+    assert "/static/app.js" in page.text
+    assert client.get("/static/app.js").status_code == 200
+    assert client.get("/static/styles.css").status_code == 200
+
+
+def test_stray_websocket_connection_is_refused_without_crashing(client):
+    # На том же порту может слушать чужой клиент (например, live reload другого проекта)
+    with pytest.raises(WebSocketDisconnect):
+        with client.websocket_connect("/"):
+            pass
 
 
 def test_too_big_id_is_rejected_by_validation(client):
