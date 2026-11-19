@@ -16,6 +16,7 @@ from app.shares import TOTAL_SHARE
 
 ALIAS_LENGTH = 8
 ALIAS_ALPHABET = string.ascii_letters + string.digits
+AVAILABLE_NAMES_LIMIT = 5
 
 logger = logging.getLogger("adrobot.creator")
 
@@ -121,7 +122,9 @@ def _find_id(items: list[dict], name: str, what: str) -> int:
     for item in items:
         if str(item.get("name", "")).strip().lower() == wanted:
             return item["id"]
-    raise NotFoundError(f"В Keitaro не найден {what} «{name}»")
+    # Подсказываем, что есть: ключу Keitaro может быть видна только часть справочника
+    available = ", ".join(str(item.get("name")) for item in items[:AVAILABLE_NAMES_LIMIT])
+    raise NotFoundError(f"В Keitaro не найден {what} «{name}». Доступны: {available or 'ничего'}")
 
 
 def _random_alias() -> str:
